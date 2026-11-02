@@ -137,6 +137,10 @@ function setPage(page) {
 }
 
 function goBack() {
+  if (state.page === "home") {
+    showSplash();
+    return;
+  }
   state.page = pageHistory.pop() || "home";
   if (state.page !== "profile") state.staffId = null;
   render();
@@ -520,11 +524,24 @@ window.visualViewport?.addEventListener("resize", fitKioskStage);
 render();
 
 const splashEnter = document.querySelector("[data-splash-enter]");
+const splashSlides = [...splash.querySelectorAll(".splash-slide")];
+let activeSplashSlide = splashSlides.findIndex((slide) => slide.classList.contains("is-active"));
 let activeSlidePointer = null;
+let slidePointerStartX = 0;
+let slidePointerStartOffset = 0;
+
+window.setInterval(() => {
+  if (splash.hidden || splash.classList.contains("is-exiting") || splashSlides.length < 2) return;
+  splashSlides[activeSplashSlide].classList.remove("is-active");
+  activeSplashSlide = (activeSplashSlide + 1) % splashSlides.length;
+  splashSlides[activeSplashSlide].classList.add("is-active");
+}, 10000);
 
 splashEnter.addEventListener("pointerdown", (event) => {
   if (event.button !== 0 || splash.hidden) return;
   activeSlidePointer = event.pointerId;
+  slidePointerStartX = event.clientX;
+  slidePointerStartOffset = Number.parseFloat(splashEnter.style.getPropertyValue("--slide-offset")) || 0;
   splashEnter.classList.add("is-dragging");
   splashEnter.setPointerCapture(event.pointerId);
 });
@@ -533,7 +550,10 @@ splashEnter.addEventListener("pointermove", (event) => {
   if (event.pointerId !== activeSlidePointer) return;
   const handle = splashEnter.querySelector(".splash-enter-handle");
   const maxOffset = splashEnter.clientWidth - handle.offsetWidth - 24;
-  const offset = Math.max(0, Math.min(event.clientX - splashEnter.getBoundingClientRect().left - handle.offsetWidth / 2 - 12, maxOffset));
+  const stageScale = Number.parseFloat(stage.style.getPropertyValue("--stage-scale")) || 1;
+  const dragSensitivity = 2.5;
+  const dragDistance = (event.clientX - slidePointerStartX) / stageScale * dragSensitivity;
+  const offset = Math.max(0, Math.min(slidePointerStartOffset + dragDistance, maxOffset));
   splashEnter.style.setProperty("--slide-offset", `${offset}px`);
   event.preventDefault();
 });

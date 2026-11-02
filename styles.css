@@ -82,7 +82,7 @@ button { -webkit-tap-highlight-color: transparent; }
   opacity: 0;
   filter: blur(14px);
   transform: scale(1.015);
-  transition: opacity 2.2s ease-in-out, transform 7s ease;
+  transition: opacity 3.2s cubic-bezier(.4, 0, .2, 1), transform 7s ease;
 }
 .splash-slide.is-active { opacity: 1; transform: scale(1.1); }
 .splash-shade {
@@ -152,7 +152,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .splash-enter:focus-visible { outline: 4px solid white; outline-offset: 6px; }
 @keyframes slider-nudge {
   0%, 65%, 100% { transform: translateX(0); }
-  78% { transform: translateX(7px); }
+  78% { transform: translateX(48px); }
   90% { transform: translateX(0); }
 }
 .splash-controls { display: flex; align-items: center; gap: 13px; margin-top: 40px; }
