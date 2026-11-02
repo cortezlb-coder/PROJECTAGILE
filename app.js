@@ -5,7 +5,6 @@ const toast = document.querySelector("#toast");
 const splash = document.querySelector("#splash");
 const idleWarning = document.querySelector("#idle-warning");
 const idleCountdown = document.querySelector("#idle-countdown");
-const pageHistory = [];
 const IDLE_TIMEOUT_MS = 120_000;
 const IDLE_WARNING_MS = 15_000;
 
@@ -95,7 +94,6 @@ const showToast = (message) => {
 function showSplash() {
   clearIdleTimers();
   hideIdleWarning();
-  pageHistory.length = 0;
   state.page = "home";
   state.room = null;
   state.surveyChoice = null;
@@ -105,10 +103,13 @@ function showSplash() {
   document.body.classList.add("splash-active");
   splash.hidden = false;
   splash.setAttribute("aria-hidden", "false");
+  splash.classList.remove("is-opening", "is-exiting");
+  splash.classList.add("is-returning");
   requestAnimationFrame(() => {
-    splash.classList.remove("is-opening");
-    splash.classList.remove("is-exiting");
-    document.querySelector("[data-splash-enter]").focus({ preventScroll: true });
+    requestAnimationFrame(() => {
+      splash.classList.remove("is-returning");
+      document.querySelector("[data-splash-enter]").focus({ preventScroll: true });
+    });
   });
 }
 
@@ -135,7 +136,6 @@ function enterKiosk() {
 }
 
 function setPage(page) {
-  if (page !== state.page) pageHistory.push(state.page);
   state.page = page;
   if (page !== "profile") state.staffId = null;
   render();
@@ -144,15 +144,7 @@ function setPage(page) {
 }
 
 function goBack() {
-  if (state.page === "home") {
-    showSplash();
-    return;
-  }
-  state.page = pageHistory.pop() || "home";
-  if (state.page !== "profile") state.staffId = null;
-  render();
-  resetIdleTimer();
-  app.scrollTo({ top: 0, behavior: "smooth" });
+  showSplash();
 }
 
 function fitKioskStage() {
@@ -170,36 +162,33 @@ function markCurrentNav() {
 
 function homeView() {
   return `
-    <section class="welcome">
-      <div class="eyebrow">E komo mai · Welcome</div>
-      <h1>Your future<br>starts here.</h1>
-      <p>Explore business, hospitality, accounting, and technology at UH Maui College.</p>
-      <a class="primary-button" href="${officialSite}/programs/" target="_blank" rel="noopener noreferrer">Explore all UHMC programs <span class="arrow" aria-hidden="true">↗</span></a>
-    </section>
-    <div class="section-heading">
-      <div><div class="eyebrow">Find your path</div><h2>Explore our programs</h2></div>
-      <button class="text-button" type="button" data-page="programs">All programs <span aria-hidden="true">→</span></button>
+    <div class="home-view">
+      <section class="welcome">
+        <div class="eyebrow">Ulu · Grow where you are rooted</div>
+        <h1>Grow where<br>you are rooted.</h1>
+        <p>One Maui Nui. One Maui College. Learn, grow, and strengthen the community that is home.</p>
+      </section>
+      <section class="home-paths" aria-labelledby="home-paths-title">
+        <div class="home-section-heading">
+          <div><div class="eyebrow">Your next step</div><h2 id="home-paths-title">Find your path</h2></div>
+          <span>Start wherever you are.</span>
+        </div>
+        <div class="home-tile-grid">
+          <button class="home-tile home-tile-programs" type="button" data-page="programs">
+            <span class="home-tile-copy"><span class="home-tile-kicker">Learn</span><strong>Explore programs</strong><span>Find a program that moves you.</span></span>
+            <span class="home-tile-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="home-tile home-tile-find" type="button" data-page="find">
+            <span class="home-tile-copy"><span class="home-tile-kicker">Find your way</span><strong>Explore campus</strong><span>Rooms, people, and classes.</span></span>
+            <span class="home-tile-arrow" aria-hidden="true">↗</span>
+          </button>
+          <button class="home-tile home-tile-campus" type="button" data-page="events">
+            <span class="home-tile-copy"><span class="home-tile-kicker">Be part of it</span><strong>Campus life</strong><span>See what’s happening at UHMC.</span></span>
+            <span class="home-tile-arrow" aria-hidden="true">↗</span>
+          </button>
+        </div>
+      </section>
     </div>
-    <div class="program-grid home-programs">
-      ${programs.map((program) => `
-        <a class="program-card" href="${program.href}" target="_blank" rel="noopener noreferrer">
-          <span class="program-icon" aria-hidden="true">${program.icon}</span>
-          <span class="eyebrow">${program.award}</span>
-          <strong>${program.title}</strong>
-          <span class="program-arrow" aria-hidden="true">Explore ↗</span>
-        </a>`).join("")}
-    </div>
-    <div class="section-heading quick-heading">
-      <div><div class="eyebrow">One tap away</div><h2>On campus</h2></div>
-    </div>
-    <div class="quick-grid home-quick-grid">
-      <button class="quick-card" type="button" data-page="find"><span class="tile-icon" aria-hidden="true">⌖</span><span><strong>Find a room or person</strong><small>Directory · map · classes</small></span><span class="tile-arrow" aria-hidden="true">›</span></button>
-      <button class="quick-card" type="button" data-page="jobs"><span class="tile-icon" aria-hidden="true">↗</span><span><strong>Business job opportunities</strong><small>Browse Maui-area listings</small></span><span class="tile-arrow" aria-hidden="true">›</span></button>
-      <button class="quick-card" type="button" data-page="events"><span class="tile-icon" aria-hidden="true">✦</span><span><strong>Events & announcements</strong><small>Campus news and activities</small></span><span class="tile-arrow" aria-hidden="true">›</span></button>
-      <button class="quick-card" type="button" data-page="survey"><span class="tile-icon" aria-hidden="true">♡</span><span><strong>Share an idea</strong><small>One-tap student poll</small></span><span class="tile-arrow" aria-hidden="true">›</span></button>
-      <a class="quick-card" href="${officialSite}" target="_blank" rel="noopener noreferrer"><span class="tile-icon" aria-hidden="true">UH</span><span><strong>UH Maui College website</strong><small>Official campus information</small></span><span class="tile-arrow" aria-hidden="true">↗</span></a>
-    </div>
-    <p class="demo-note home-note">Kiosk prototype · Verify office listings, building maps, and current campus announcements before deployment.</p>
   `;
 }
 
@@ -533,9 +522,6 @@ render();
 const splashEnter = document.querySelector("[data-splash-enter]");
 const splashSlides = [...splash.querySelectorAll(".splash-slide")];
 let activeSplashSlide = splashSlides.findIndex((slide) => slide.classList.contains("is-active"));
-let activeSlidePointer = null;
-let slidePointerStartX = 0;
-let slidePointerStartOffset = 0;
 
 window.setInterval(() => {
   if (splash.hidden || splash.classList.contains("is-exiting") || splashSlides.length < 2) return;
@@ -544,51 +530,4 @@ window.setInterval(() => {
   splashSlides[activeSplashSlide].classList.add("is-active");
 }, 5000);
 
-splashEnter.addEventListener("pointerdown", (event) => {
-  if (event.button !== 0 || splash.hidden) return;
-  activeSlidePointer = event.pointerId;
-  slidePointerStartX = event.clientX;
-  slidePointerStartOffset = Number.parseFloat(splashEnter.style.getPropertyValue("--slide-offset")) || 0;
-  splashEnter.classList.add("is-dragging");
-  splashEnter.setPointerCapture(event.pointerId);
-});
-
-splashEnter.addEventListener("pointermove", (event) => {
-  if (event.pointerId !== activeSlidePointer) return;
-  const handle = splashEnter.querySelector(".splash-enter-handle");
-  const maxOffset = splashEnter.clientWidth - handle.offsetWidth - 24;
-  const stageScale = Number.parseFloat(stage.style.getPropertyValue("--stage-scale")) || 1;
-  const dragSensitivity = 2.5;
-  const dragDistance = (event.clientX - slidePointerStartX) / stageScale * dragSensitivity;
-  const offset = Math.max(0, Math.min(slidePointerStartOffset + dragDistance, maxOffset));
-  splashEnter.style.setProperty("--slide-offset", `${offset}px`);
-  event.preventDefault();
-});
-
-splashEnter.addEventListener("pointerup", (event) => {
-  if (event.pointerId !== activeSlidePointer) return;
-  const handle = splashEnter.querySelector(".splash-enter-handle");
-  const maxOffset = splashEnter.clientWidth - handle.offsetWidth - 24;
-  const offset = Number.parseFloat(splashEnter.style.getPropertyValue("--slide-offset")) || 0;
-  activeSlidePointer = null;
-  splashEnter.classList.remove("is-dragging");
-  splashEnter.style.setProperty("--slide-offset", "0px");
-  if (maxOffset > 0 && offset / maxOffset >= 0.82) enterKiosk();
-});
-
-splashEnter.addEventListener("pointercancel", () => {
-  activeSlidePointer = null;
-  splashEnter.classList.remove("is-dragging");
-  splashEnter.style.setProperty("--slide-offset", "0px");
-});
-
-splashEnter.addEventListener("click", (event) => {
-  if (event.detail === 0) enterKiosk();
-});
-
-splashEnter.addEventListener("keydown", (event) => {
-  if (event.key === "ArrowRight" || event.key === "End") {
-    event.preventDefault();
-    enterKiosk();
-  }
-});
+splashEnter.addEventListener("click", enterKiosk);

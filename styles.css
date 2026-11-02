@@ -59,6 +59,7 @@ button { -webkit-tap-highlight-color: transparent; }
   transition: opacity .8s ease, visibility .8s ease;
 }
 .splash-screen.is-exiting { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-screen.is-returning { opacity: 0; }
 .splash-screen[hidden] { display: none; }
 .splash-slides, .splash-shade { position: absolute; z-index: -1; inset: 0; }
 .splash-shade { transition: opacity .9s ease; }
@@ -117,10 +118,10 @@ button { -webkit-tap-highlight-color: transparent; }
 .splash-content h1 { margin: 0; font-size: clamp(72px, 9vw, 124px); font-weight: 700; letter-spacing: -4px; line-height: .98; }
 .splash-intro { margin: 26px 0 34px; font-size: 30px; line-height: 1.4; }
 .splash-enter {
-  position: relative;
   width: min(560px, 100%);
   min-width: 0;
   min-height: 112px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -128,46 +129,28 @@ button { -webkit-tap-highlight-color: transparent; }
   overflow: hidden;
   border: 0;
   border-radius: 60px;
-  color: #fff;
-  background: rgba(3, 35, 51, .68);
+  color: #07394f;
+  background: #f2b36f;
   border: 2px solid rgba(255, 255, 255, .9);
-  box-shadow: 0 12px 38px rgba(0,0,0,.35), 0 0 0 6px rgba(255,255,255,.16);
+  box-shadow: 0 12px 38px rgba(0,0,0,.3), 0 0 0 6px rgba(255,255,255,.2);
   font-size: 30px;
   font-weight: 700;
   cursor: pointer;
-  touch-action: none;
+  touch-action: manipulation;
   user-select: none;
+  animation: enter-button-pulse 3.2s ease-in-out 1s infinite;
 }
 .splash-enter-label {
   pointer-events: none;
   letter-spacing: .5px;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, .6);
 }
-.splash-enter-handle {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 88px;
-  height: calc(100% - 24px);
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  color: #07394f;
-  background: #e58265;
-  border: 4px solid white;
-  box-shadow: 0 5px 18px rgba(0, 0, 0, .38);
-  font-size: 32px;
-  transform: translateX(var(--slide-offset, 0px));
-  transition: transform .2s ease;
-  pointer-events: none;
-}
-.splash-enter:not(.is-dragging) .splash-enter-handle { animation: slider-nudge 1.8s ease-in-out 1s infinite; }
-.splash-enter.is-dragging .splash-enter-handle { animation: none; transition: none; }
+.splash-enter:hover { background-color: #ffd08f; }
+.splash-enter:active { transform: scale(.985); }
 .splash-enter:focus-visible { outline: 4px solid white; outline-offset: 6px; }
-@keyframes slider-nudge {
-  0%, 65%, 100% { transform: translateX(0); }
-  78% { transform: translateX(48px); }
-  90% { transform: translateX(0); }
+@keyframes enter-button-pulse {
+  0%, 72%, 100% { transform: scale(1); }
+  82% { transform: scale(1.015); }
+  92% { transform: scale(1); }
 }
 .splash-controls { display: flex; align-items: center; gap: 13px; margin-top: 40px; }
 .splash-dot { width: 15px; height: 15px; padding: 0; border: 2px solid white; border-radius: 50%; background: transparent; cursor: pointer; }
@@ -277,15 +260,18 @@ h1, h2, h3 { font-family: "Segoe UI", Arial, sans-serif; }
 
 .welcome {
   position: relative;
-  min-height: 410px;
+  min-height: 450px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: 46px 54px;
   overflow: hidden;
   border-radius: 34px;
   color: white;
   background:
-    radial-gradient(ellipse at 91% 6%, rgba(156, 192, 214, .30) 0 9%, transparent 9.5%),
-    radial-gradient(ellipse at 92% 9%, rgba(255,255,255,.09) 0 18%, transparent 18.5%),
-    linear-gradient(130deg, #07394f 0%, #00506d 65%, #126b7b 100%);
+    linear-gradient(90deg, rgba(3, 35, 51, .93) 0%, rgba(3, 51, 70, .76) 53%, rgba(3, 51, 70, .18) 100%),
+    linear-gradient(0deg, rgba(3, 35, 51, .4), transparent 55%),
+    url("assets/campus-01.jpg") center 48% / cover;
 }
 
 .welcome::after {
@@ -300,9 +286,49 @@ h1, h2, h3 { font-family: "Segoe UI", Arial, sans-serif; }
   box-shadow: 0 0 0 34px rgba(255,255,255,.035), 0 0 0 72px rgba(255,255,255,.025);
 }
 
-.welcome .eyebrow { color: #d3ddc8; }
-.welcome h1 { max-width: 670px; margin: 24px 0 18px; font-size: clamp(42px, 6vw, 66px); line-height: 1.05; letter-spacing: -2.6px; }
-.welcome p { max-width: 575px; margin-bottom: 36px; color: rgba(255,255,255,.78); font-size: 21px; line-height: 1.55; }
+.welcome .eyebrow { position: relative; z-index: 1; color: #f2c37b; }
+.welcome h1 { position: relative; z-index: 1; max-width: 760px; margin: 24px 0 18px; font-size: clamp(58px, 7vw, 86px); line-height: .99; letter-spacing: -3.2px; }
+.welcome p { position: relative; z-index: 1; max-width: 650px; margin-bottom: 0; color: rgba(255,255,255,.88); font-size: 24px; line-height: 1.45; }
+
+.home-paths { margin-top: 30px; }
+.home-section-heading { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 17px; }
+.home-section-heading .eyebrow { color: var(--green); }
+.home-section-heading h2 { margin: 7px 0 0; font-size: 38px; letter-spacing: -1px; }
+.home-section-heading > span { padding-bottom: 5px; color: var(--muted); font-size: 17px; }
+.home-tile-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.home-tile {
+  position: relative;
+  min-width: 0;
+  min-height: 490px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 25px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 24px;
+  color: white;
+  background: var(--green-deep);
+  box-shadow: 0 12px 28px rgba(7, 57, 79, .13);
+  text-align: left;
+  cursor: pointer;
+  isolation: isolate;
+}
+.home-tile::before, .home-tile::after { position: absolute; z-index: -1; inset: 0; content: ""; }
+.home-tile::before { background-position: center; background-size: cover; transition: transform .35s ease; }
+.home-tile::after { background: linear-gradient(0deg, rgba(3, 35, 51, .94) 0%, rgba(3, 35, 51, .7) 39%, rgba(3, 35, 51, .03) 100%); }
+.home-tile-programs::before { background-image: url("assets/campus-02.jpg"); }
+.home-tile-find::before { background-image: url("assets/campus-03.jpg"); }
+.home-tile-campus::before { background-image: url("assets/campus-04.jpg"); }
+.home-tile:hover::before, .home-tile:focus-visible::before { transform: scale(1.05); }
+.home-tile-copy { display: grid; gap: 10px; min-width: 0; text-shadow: 0 2px 12px rgba(0, 0, 0, .35); }
+.home-tile-kicker { color: #f2c37b; font-size: 14px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; }
+.home-tile-copy strong { font-size: 27px; line-height: 1.08; letter-spacing: -.5px; }
+.home-tile-copy > span:last-child { color: rgba(255,255,255,.86); font-size: 16px; line-height: 1.35; }
+.home-tile-arrow { flex: 0 0 auto; width: 48px; height: 48px; display: grid; place-items: center; margin-bottom: 2px; border: 1px solid rgba(255,255,255,.62); border-radius: 50%; color: white; font-size: 23px; transition: color .2s ease, background .2s ease, transform .2s ease; }
+.home-tile:hover .home-tile-arrow { color: var(--green-deep); background: white; transform: translate(2px, -2px); }
+.home-tile:active { transform: scale(.99); }
 
 .primary-button, .secondary-button, .text-button, .icon-button, .tab-button, .day-button {
   min-height: 62px;
@@ -608,22 +634,26 @@ button:focus-visible, a:focus-visible {
   .welcome h1 { margin: 16px 0 14px; font-size: 64px; line-height: 1.02; letter-spacing: -1.8px; }
   .welcome p { max-width: 690px; margin-bottom: 22px; font-size: 24px; line-height: 1.35; }
   .welcome .eyebrow, .eyebrow { font-size: 15px; }
+  .home-view .welcome { min-height: 440px; padding: 42px 48px; border-radius: 30px; }
+  .home-view .welcome h1 { margin: 20px 0 16px; font-size: 78px; line-height: .99; letter-spacing: -3px; }
+  .home-view .welcome p { max-width: 650px; margin: 0; font-size: 24px; line-height: 1.45; }
+  .home-paths { margin-top: 27px; }
+  .home-section-heading { margin-bottom: 15px; }
+  .home-section-heading h2 { font-size: 36px; }
+  .home-tile-grid { gap: 15px; }
+  .home-tile { min-height: 480px; padding: 22px; border-radius: 22px; }
+  .home-tile-kicker { font-size: 13px; }
+  .home-tile-copy strong { font-size: 25px; }
+  .home-tile-copy > span:last-child { font-size: 15px; }
+  .home-tile-arrow { width: 43px; height: 43px; font-size: 21px; }
   .primary-button { min-height: 62px; padding: 0 24px; font-size: 22px; }
   .section-heading { align-items: center; margin: 24px 0 14px; }
   .section-heading h2 { font-size: 34px; }
   .section-heading .text-button { min-height: 56px; font-size: 18px; }
   .program-grid, .quick-grid { gap: 12px; }
-  .home-programs .program-card { min-height: 210px; gap: 9px; padding: 19px; border-radius: 20px; }
-  .home-programs .program-icon { width: 52px; height: 52px; border-radius: 15px; font-size: 26px; }
   .program-card .eyebrow { font-size: 14px; }
   .program-card strong { font-size: 24px; line-height: 1.12; }
   .program-arrow { font-size: 17px; }
-  .quick-heading { margin-top: 18px; }
-  .home-quick-grid .quick-card { min-height: 112px; gap: 15px; padding: 16px 18px; border-radius: 19px; }
-  .home-quick-grid .quick-card .tile-icon { width: 58px; height: 58px; flex-basis: 58px; font-size: 25px; }
-  .home-quick-grid .quick-card strong { font-size: 22px; line-height: 1.2; }
-  .home-quick-grid .quick-card small { margin-top: 5px; font-size: 17px; line-height: 1.25; }
-  .home-note { display: none; }
   .bottom-nav button { font-size: 16px; }
   .nav-icon { min-width: 36px; height: 36px; font-size: 28px; }
   .splash-brand { font-size: 18px; }
@@ -632,7 +662,6 @@ button:focus-visible, a:focus-visible {
   .splash-content h1 { font-size: 112px; }
   .splash-intro { font-size: 34px; }
   .splash-enter { min-height: 128px; font-size: 34px; }
-  .splash-enter-handle { width: 104px; font-size: 38px; }
   .splash-dot { width: 18px; height: 18px; }
   .splash-dot.is-active { width: 44px; }
   .splash-controls { gap: 16px; margin-top: 48px; }
@@ -656,6 +685,15 @@ button:focus-visible, a:focus-visible {
   .welcome { min-height: 400px; padding: 36px 28px; border-radius: 26px; }
   .welcome h1 { font-size: clamp(40px, 10vw, 60px); letter-spacing: -1.8px; }
   .welcome p { font-size: 17px; }
+  .home-view .welcome { min-height: 360px; padding: 30px 28px; }
+  .home-view .welcome h1 { font-size: clamp(48px, 10vw, 64px); letter-spacing: -2px; }
+  .home-view .welcome p { font-size: 18px; }
+  .home-paths { margin-top: 24px; }
+  .home-section-heading { align-items: start; flex-direction: column; gap: 6px; }
+  .home-section-heading h2 { font-size: 28px; }
+  .home-tile-grid { grid-template-columns: 1fr; }
+  .home-tile { min-height: 275px; padding: 22px; }
+  .home-tile-copy strong { font-size: 24px; }
   .section-heading { align-items: start; flex-direction: column; margin-top: 34px; }
   .section-heading h2 { font-size: 26px; }
   .tile-grid, .feature-row, .map-layout { grid-template-columns: 1fr; }
@@ -691,7 +729,6 @@ button:focus-visible, a:focus-visible {
   .splash-content h1 { font-size: clamp(48px, 11vw, 76px); letter-spacing: -2.5px; }
   .splash-intro { margin: 16px 0 22px; font-size: 19px; }
   .splash-enter { width: 100%; min-height: 96px; padding: 10px; font-size: 24px; }
-  .splash-enter-handle { top: 10px; left: 10px; width: 76px; height: calc(100% - 20px); font-size: 28px; }
   .splash-controls { margin-top: 30px; }
   .splash-caption { right: 20px; bottom: 20px; font-size: 10px; letter-spacing: 1px; }
   .idle-warning { padding: 24px; }
@@ -704,4 +741,5 @@ button:focus-visible, a:focus-visible {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  .splash-enter { animation: none; }
 }

@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#00506d" />
     <title>Ka Lama | Campus Kiosk</title>
     <script>document.documentElement.style.setProperty("--stage-scale", String(Math.min(window.innerWidth / 1080, window.innerHeight / 1920)));</script>
-    <link rel="stylesheet" href="styles.css?v=19" />
+    <link rel="stylesheet" href="styles.css?v=20" />
   </head>
   <body class="splash-active">
     <div class="kiosk-stage" id="kiosk-stage">
@@ -28,7 +28,7 @@
         <main id="app" class="main-content" aria-live="polite"></main>
 
         <nav class="bottom-nav" aria-label="Kiosk sections">
-          <button type="button" class="nav-back" data-action="back" aria-label="Go back to the previous screen">
+          <button type="button" class="nav-back" data-action="back" aria-label="Return to the welcome screen">
             <span class="nav-icon" aria-hidden="true">←</span><span>Back</span>
           </button>
           <button type="button" data-page="home" aria-current="page">
@@ -62,10 +62,9 @@
           <span class="splash-brand"><img class="splash-brand-mark" src="assets/uhmc-logo.png" alt="University of Hawaiʻi Maui College logo" /> UNIVERSITY OF HAWAIʻI · MAUI COLLEGE</span>
           <p class="splash-kicker">E KOMO MAI · WELCOME</p>
           <h1>Welcome to<br />Ka Lama Building</h1>
-          <p class="splash-intro">Find your way, explore the Business program, and discover what’s happening at UHMC.</p>
-          <button class="splash-enter" type="button" data-splash-enter aria-label="Slide to enter">
-            <span class="splash-enter-label">Slide to enter</span>
-            <span class="splash-enter-handle" aria-hidden="true">→</span>
+          <p class="splash-intro">Find your way, explore your future, and discover what’s happening at UH Maui College.</p>
+          <button class="splash-enter" type="button" data-splash-enter aria-label="Click to enter">
+            <span class="splash-enter-label">Click to enter</span>
           </button>
         </div>
         <span class="splash-caption">UHMC · KAHULUI, MAUI</span>
@@ -79,6 +78,6 @@
         </div>
       </section>
     </div>
-    <script src="app.js?v=19"></script>
+    <script src="app.js?v=20"></script>
   </body>
 </html>
