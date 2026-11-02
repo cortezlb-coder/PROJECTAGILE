@@ -5,6 +5,7 @@ const toast = document.querySelector("#toast");
 const splash = document.querySelector("#splash");
 const idleWarning = document.querySelector("#idle-warning");
 const idleCountdown = document.querySelector("#idle-countdown");
+const pageHistory = [];
 const IDLE_TIMEOUT_MS = 120_000;
 const IDLE_WARNING_MS = 15_000;
 
@@ -94,12 +95,14 @@ const showToast = (message) => {
 function showSplash() {
   clearIdleTimers();
   hideIdleWarning();
+  pageHistory.length = 0;
   state.page = "home";
   state.room = null;
   state.surveyChoice = null;
   state.surveySubmitted = false;
   render();
   document.querySelector(".app-shell").setAttribute("aria-hidden", "true");
+  document.querySelector(".app-shell").classList.remove("kiosk-active");
   document.body.classList.add("splash-active");
   splash.hidden = false;
   splash.setAttribute("aria-hidden", "false");
@@ -121,6 +124,7 @@ function enterKiosk() {
   splash.classList.add("is-opening");
   splash.setAttribute("aria-hidden", "true");
   document.querySelector(".app-shell").setAttribute("aria-hidden", "false");
+  document.querySelector(".app-shell").classList.add("kiosk-active");
   state.page = "home";
   render();
   window.setTimeout(() => {
@@ -136,6 +140,7 @@ function enterKiosk() {
 }
 
 function setPage(page) {
+  if (page !== state.page) pageHistory.push(state.page);
   state.page = page;
   if (page !== "profile") state.staffId = null;
   render();
@@ -144,7 +149,15 @@ function setPage(page) {
 }
 
 function goBack() {
-  showSplash();
+  if (state.page === "home") {
+    showSplash();
+    return;
+  }
+  state.page = pageHistory.pop() || "home";
+  if (state.page !== "profile") state.staffId = null;
+  render();
+  resetIdleTimer();
+  app.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function fitKioskStage() {
@@ -403,6 +416,7 @@ const views = {
 
 function render() {
   app.innerHTML = (views[state.page] || homeView)();
+  document.querySelector(".app-shell").classList.toggle("home-active", state.page === "home");
   markCurrentNav();
 }
 
@@ -528,6 +542,6 @@ window.setInterval(() => {
   splashSlides[activeSplashSlide].classList.remove("is-active");
   activeSplashSlide = (activeSplashSlide + 1) % splashSlides.length;
   splashSlides[activeSplashSlide].classList.add("is-active");
-}, 5000);
+}, 4000);
 
 splashEnter.addEventListener("click", enterKiosk);
