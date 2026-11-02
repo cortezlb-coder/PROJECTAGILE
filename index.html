@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#00506d" />
     <title>Ka Lama | Campus Kiosk</title>
-    <script>document.documentElement.style.setProperty("--stage-scale", String(Math.min(window.innerWidth / 1080, window.innerHeight / 1980)));</script>
-    <link rel="stylesheet" href="styles.css?v=13" />
+    <script>document.documentElement.style.setProperty("--stage-scale", String(Math.min(window.innerWidth / 1080, window.innerHeight / 1920)));</script>
+    <link rel="stylesheet" href="styles.css?v=16" />
   </head>
   <body class="splash-active">
     <div class="kiosk-stage" id="kiosk-stage">
@@ -15,7 +15,7 @@
           <button class="brand" type="button" data-action="home" aria-label="Ka Lama kiosk home">
             <span class="brand-mark" aria-hidden="true">UH</span>
             <span class="brand-copy">
-              <strong>UH Maui College</strong>
+              <strong>UHMC</strong>
               <span>Ka Lama Building</span>
             </span>
           </button>
@@ -49,7 +49,7 @@
         </nav>
         <div id="toast" class="toast" role="status" aria-live="assertive"></div>
       </div>
-      <section class="splash-screen" id="splash" role="dialog" aria-modal="true" aria-label="UH Maui College welcome">
+      <section class="splash-screen" id="splash" role="dialog" aria-modal="true" aria-label="UHMC welcome">
         <div class="splash-slides" aria-hidden="true">
           <img class="splash-slide is-active" src="assets/campus-02.jpg" alt="" fetchpriority="high" />
         </div>
@@ -59,12 +59,13 @@
           <span class="splash-brand"><img class="splash-brand-mark" src="assets/uhmc-logo.png" alt="University of Hawaiʻi Maui College logo" /> UNIVERSITY OF HAWAIʻI · MAUI COLLEGE</span>
           <p class="splash-kicker">E KOMO MAI · WELCOME</p>
           <h1>Welcome to<br />Ka Lama Building</h1>
-          <p class="splash-intro">Find your way, explore the Business program, and discover what’s happening at UH Maui College.</p>
-          <button class="splash-enter" type="button" data-splash-enter>
-            Touch to enter <span aria-hidden="true">→</span>
+          <p class="splash-intro">Find your way, explore the Business program, and discover what’s happening at UHMC.</p>
+          <button class="splash-enter" type="button" data-splash-enter aria-label="Slide to enter">
+            <span class="splash-enter-label">Slide to enter</span>
+            <span class="splash-enter-handle" aria-hidden="true">→</span>
           </button>
         </div>
-        <span class="splash-caption">UH MAUI COLLEGE · KAHULUI, MAUI</span>
+        <span class="splash-caption">UHMC · KAHULUI, MAUI</span>
       </section>
       <section class="idle-warning" id="idle-warning" role="dialog" aria-modal="true" aria-labelledby="idle-warning-title" aria-hidden="true" hidden>
         <div class="idle-warning-card">
@@ -75,6 +76,6 @@
         </div>
       </section>
     </div>
-    <script src="app.js?v=13"></script>
+    <script src="app.js?v=15"></script>
   </body>
 </html>

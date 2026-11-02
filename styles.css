@@ -37,7 +37,7 @@ button { -webkit-tap-highlight-color: transparent; }
   top: 50%;
   left: 50%;
   width: 1080px;
-  height: 1980px;
+  height: 1920px;
   overflow: hidden;
   transform: translate(-50%, -50%) scale(var(--stage-scale, 1));
   transform-origin: center;
@@ -103,25 +103,58 @@ button { -webkit-tap-highlight-color: transparent; }
 .splash-content h1 { margin: 0; font-size: clamp(72px, 9vw, 124px); font-weight: 700; letter-spacing: -4px; line-height: .98; }
 .splash-intro { margin: 26px 0 34px; font-size: 30px; line-height: 1.4; }
 .splash-enter {
-  min-width: 520px;
-  min-height: 132px;
-  display: inline-flex;
+  position: relative;
+  width: min(560px, 100%);
+  min-width: 0;
+  min-height: 112px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 26px;
-  padding: 0 48px;
+  padding: 12px;
+  overflow: hidden;
   border: 0;
-  border-radius: 26px;
-  color: #07394f;
-  background: #fff;
-  box-shadow: 0 10px 35px rgba(0,0,0,.2);
-  font-size: 36px;
+  border-radius: 60px;
+  color: #fff;
+  background: rgba(3, 35, 51, .68);
+  border: 2px solid rgba(255, 255, 255, .9);
+  box-shadow: 0 12px 38px rgba(0,0,0,.35), 0 0 0 6px rgba(255,255,255,.16);
+  font-size: 30px;
   font-weight: 700;
   cursor: pointer;
-  touch-action: manipulation;
+  touch-action: none;
+  user-select: none;
 }
-.splash-enter span { font-size: 32px; transition: transform .18s ease; }
-.splash-enter:hover span { transform: translateX(5px); }
+.splash-enter-label {
+  pointer-events: none;
+  letter-spacing: .5px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .6);
+}
+.splash-enter-handle {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 88px;
+  height: calc(100% - 24px);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #07394f;
+  background: #e58265;
+  border: 4px solid white;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, .38);
+  font-size: 32px;
+  transform: translateX(var(--slide-offset, 0px));
+  transition: transform .2s ease;
+  pointer-events: none;
+}
+.splash-enter:not(.is-dragging) .splash-enter-handle { animation: slider-nudge 1.8s ease-in-out 1s infinite; }
+.splash-enter.is-dragging .splash-enter-handle { animation: none; transition: none; }
+.splash-enter:focus-visible { outline: 4px solid white; outline-offset: 6px; }
+@keyframes slider-nudge {
+  0%, 65%, 100% { transform: translateX(0); }
+  78% { transform: translateX(7px); }
+  90% { transform: translateX(0); }
+}
 .splash-controls { display: flex; align-items: center; gap: 13px; margin-top: 40px; }
 .splash-dot { width: 15px; height: 15px; padding: 0; border: 2px solid white; border-radius: 50%; background: transparent; cursor: pointer; }
 .splash-dot.is-active { width: 38px; border-radius: 10px; background: white; }
@@ -168,7 +201,7 @@ button { -webkit-tap-highlight-color: transparent; }
 .app-shell {
   display: flex;
   width: 1080px;
-  height: 1980px;
+  height: 1920px;
   min-height: 0;
   flex-direction: column;
   margin: 0;
@@ -584,8 +617,8 @@ button:focus-visible, a:focus-visible {
   .splash-kicker { margin-top: 90px; font-size: 24px; }
   .splash-content h1 { font-size: 112px; }
   .splash-intro { font-size: 34px; }
-  .splash-enter { min-width: 560px; min-height: 144px; font-size: 38px; }
-  .splash-enter span { font-size: 38px; }
+  .splash-enter { min-height: 128px; font-size: 34px; }
+  .splash-enter-handle { width: 104px; font-size: 38px; }
   .splash-dot { width: 18px; height: 18px; }
   .splash-dot.is-active { width: 44px; }
   .splash-controls { gap: 16px; margin-top: 48px; }
@@ -643,7 +676,8 @@ button:focus-visible, a:focus-visible {
   .splash-kicker { margin: 38px 0 16px; font-size: 15px; letter-spacing: 2px; }
   .splash-content h1 { font-size: clamp(48px, 11vw, 76px); letter-spacing: -2.5px; }
   .splash-intro { margin: 16px 0 22px; font-size: 19px; }
-  .splash-enter { min-width: min(520px, 100%); min-height: 112px; padding: 0 32px; font-size: 30px; }
+  .splash-enter { width: 100%; min-height: 96px; padding: 10px; font-size: 24px; }
+  .splash-enter-handle { top: 10px; left: 10px; width: 76px; height: calc(100% - 20px); font-size: 28px; }
   .splash-controls { margin-top: 30px; }
   .splash-caption { right: 20px; bottom: 20px; font-size: 10px; letter-spacing: 1px; }
   .idle-warning { padding: 24px; }

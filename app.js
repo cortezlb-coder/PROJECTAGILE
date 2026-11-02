@@ -145,7 +145,7 @@ function goBack() {
 }
 
 function fitKioskStage() {
-  const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1980);
+  const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
   stage.style.setProperty("--stage-scale", String(scale));
 }
 
@@ -519,4 +519,49 @@ window.addEventListener("resize", fitKioskStage);
 window.visualViewport?.addEventListener("resize", fitKioskStage);
 render();
 
-document.querySelector("[data-splash-enter]").addEventListener("click", enterKiosk);
+const splashEnter = document.querySelector("[data-splash-enter]");
+let activeSlidePointer = null;
+
+splashEnter.addEventListener("pointerdown", (event) => {
+  if (event.button !== 0 || splash.hidden) return;
+  activeSlidePointer = event.pointerId;
+  splashEnter.classList.add("is-dragging");
+  splashEnter.setPointerCapture(event.pointerId);
+});
+
+splashEnter.addEventListener("pointermove", (event) => {
+  if (event.pointerId !== activeSlidePointer) return;
+  const handle = splashEnter.querySelector(".splash-enter-handle");
+  const maxOffset = splashEnter.clientWidth - handle.offsetWidth - 24;
+  const offset = Math.max(0, Math.min(event.clientX - splashEnter.getBoundingClientRect().left - handle.offsetWidth / 2 - 12, maxOffset));
+  splashEnter.style.setProperty("--slide-offset", `${offset}px`);
+  event.preventDefault();
+});
+
+splashEnter.addEventListener("pointerup", (event) => {
+  if (event.pointerId !== activeSlidePointer) return;
+  const handle = splashEnter.querySelector(".splash-enter-handle");
+  const maxOffset = splashEnter.clientWidth - handle.offsetWidth - 24;
+  const offset = Number.parseFloat(splashEnter.style.getPropertyValue("--slide-offset")) || 0;
+  activeSlidePointer = null;
+  splashEnter.classList.remove("is-dragging");
+  splashEnter.style.setProperty("--slide-offset", "0px");
+  if (maxOffset > 0 && offset / maxOffset >= 0.82) enterKiosk();
+});
+
+splashEnter.addEventListener("pointercancel", () => {
+  activeSlidePointer = null;
+  splashEnter.classList.remove("is-dragging");
+  splashEnter.style.setProperty("--slide-offset", "0px");
+});
+
+splashEnter.addEventListener("click", (event) => {
+  if (event.detail === 0) enterKiosk();
+});
+
+splashEnter.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowRight" || event.key === "End") {
+    event.preventDefault();
+    enterKiosk();
+  }
+});
