@@ -108,6 +108,7 @@ function showSplash() {
   splash.setAttribute("aria-hidden", "false");
   splash.classList.remove("is-opening", "is-exiting");
   splash.classList.add("is-returning");
+  startSplashRotation();
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       splash.classList.remove("is-returning");
@@ -118,6 +119,7 @@ function showSplash() {
 
 function enterKiosk() {
   if (splash.hidden || splash.classList.contains("is-opening")) return;
+  stopSplashRotation();
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const openingDuration = reducedMotion ? 0 : 900;
   const fadeDuration = reducedMotion ? 0 : 850;
@@ -161,8 +163,20 @@ function goBack() {
 }
 
 function fitKioskStage() {
-  const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
-  stage.style.setProperty("--stage-scale", String(scale));
+  const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1980);
+  const scaleValue = String(scale);
+  if (stage.style.getPropertyValue("--stage-scale") !== scaleValue) {
+    stage.style.setProperty("--stage-scale", scaleValue);
+  }
+}
+
+let stageResizeFrame = 0;
+function scheduleKioskStageFit() {
+  if (stageResizeFrame) return;
+  stageResizeFrame = window.requestAnimationFrame(() => {
+    stageResizeFrame = 0;
+    fitKioskStage();
+  });
 }
 
 function markCurrentNav() {
@@ -496,7 +510,7 @@ function showIdleWarning() {
   const deadline = Date.now() + IDLE_WARNING_MS;
   idleCountdownTimer = window.setInterval(() => {
     idleCountdown.textContent = String(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
-  }, 250);
+  }, 1000);
   idleWarningTimer = window.setTimeout(showSplash, IDLE_WARNING_MS);
 }
 
@@ -529,19 +543,29 @@ function updateClock() {
 updateClock();
 window.setInterval(updateClock, 30000);
 fitKioskStage();
-window.addEventListener("resize", fitKioskStage);
-window.visualViewport?.addEventListener("resize", fitKioskStage);
+window.addEventListener("resize", scheduleKioskStageFit, { passive: true });
+window.visualViewport?.addEventListener("resize", scheduleKioskStageFit, { passive: true });
 render();
 
 const splashEnter = document.querySelector("[data-splash-enter]");
 const splashSlides = [...splash.querySelectorAll(".splash-slide")];
 let activeSplashSlide = splashSlides.findIndex((slide) => slide.classList.contains("is-active"));
+let splashRotationTimer;
 
-window.setInterval(() => {
-  if (splash.hidden || splash.classList.contains("is-exiting") || splashSlides.length < 2) return;
-  splashSlides[activeSplashSlide].classList.remove("is-active");
-  activeSplashSlide = (activeSplashSlide + 1) % splashSlides.length;
-  splashSlides[activeSplashSlide].classList.add("is-active");
-}, 4000);
+function startSplashRotation() {
+  window.clearInterval(splashRotationTimer);
+  if (splash.hidden || splashSlides.length < 2) return;
+  splashRotationTimer = window.setInterval(() => {
+    if (splash.hidden || splash.classList.contains("is-exiting")) return;
+    splashSlides[activeSplashSlide].classList.remove("is-active");
+    activeSplashSlide = (activeSplashSlide + 1) % splashSlides.length;
+    splashSlides[activeSplashSlide].classList.add("is-active");
+  }, 4000);
+}
+
+function stopSplashRotation() {
+  window.clearInterval(splashRotationTimer);
+}
 
 splashEnter.addEventListener("click", enterKiosk);
+startSplashRotation();
