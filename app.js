@@ -542,7 +542,7 @@ window.setInterval(() => {
   splashSlides[activeSplashSlide].classList.remove("is-active");
   activeSplashSlide = (activeSplashSlide + 1) % splashSlides.length;
   splashSlides[activeSplashSlide].classList.add("is-active");
-}, 10000);
+}, 5000);
 
 splashEnter.addEventListener("pointerdown", (event) => {
   if (event.button !== 0 || splash.hidden) return;
