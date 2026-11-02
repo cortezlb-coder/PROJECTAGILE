@@ -1,6 +1,13 @@
 const app = document.querySelector("#app");
+const stage = document.querySelector("#kiosk-stage");
 const nav = document.querySelector(".bottom-nav");
 const toast = document.querySelector("#toast");
+const splash = document.querySelector("#splash");
+const idleWarning = document.querySelector("#idle-warning");
+const idleCountdown = document.querySelector("#idle-countdown");
+const pageHistory = [];
+const IDLE_TIMEOUT_MS = 120_000;
+const IDLE_WARNING_MS = 15_000;
 
 const staff = [
   { id: "business-office", name: "Business Department Office", role: "Department information", room: "Ka Lama 202", floor: 2, hours: "Confirm with department" },
@@ -85,12 +92,61 @@ const showToast = (message) => {
   showToast.timeout = window.setTimeout(() => toast.classList.remove("show"), 2800);
 };
 
+function showSplash() {
+  clearIdleTimers();
+  hideIdleWarning();
+  pageHistory.length = 0;
+  state.page = "home";
+  state.room = null;
+  state.surveyChoice = null;
+  state.surveySubmitted = false;
+  render();
+  document.querySelector(".app-shell").setAttribute("aria-hidden", "true");
+  document.body.classList.add("splash-active");
+  splash.hidden = false;
+  splash.setAttribute("aria-hidden", "false");
+  requestAnimationFrame(() => {
+    splash.classList.remove("is-exiting");
+    document.querySelector("[data-splash-enter]").focus({ preventScroll: true });
+  });
+}
+
+function enterKiosk() {
+  if (splash.hidden) return;
+  splash.classList.add("is-exiting");
+  splash.setAttribute("aria-hidden", "true");
+  document.querySelector(".app-shell").setAttribute("aria-hidden", "false");
+  state.page = "home";
+  render();
+  window.setTimeout(() => {
+    splash.hidden = true;
+    document.body.classList.remove("splash-active");
+    app.querySelector(".welcome").setAttribute("tabindex", "-1");
+    app.querySelector(".welcome").focus({ preventScroll: true });
+    resetIdleTimer();
+  }, 850);
+}
+
 function setPage(page) {
+  if (page !== state.page) pageHistory.push(state.page);
   state.page = page;
   if (page !== "profile") state.staffId = null;
   render();
   resetIdleTimer();
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  app.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function goBack() {
+  state.page = pageHistory.pop() || "home";
+  if (state.page !== "profile") state.staffId = null;
+  render();
+  resetIdleTimer();
+  app.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function fitKioskStage() {
+  const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1980);
+  stage.style.setProperty("--stage-scale", String(scale));
 }
 
 function markCurrentNav() {
@@ -125,7 +181,7 @@ function homeView() {
     <div class="section-heading quick-heading">
       <div><div class="eyebrow">One tap away</div><h2>On campus</h2></div>
     </div>
-    <div class="quick-grid">
+    <div class="quick-grid home-quick-grid">
       <button class="quick-card" type="button" data-page="find"><span class="tile-icon" aria-hidden="true">⌖</span><span><strong>Find a room or person</strong><small>Directory · map · classes</small></span><span class="tile-arrow" aria-hidden="true">›</span></button>
       <button class="quick-card" type="button" data-page="jobs"><span class="tile-icon" aria-hidden="true">↗</span><span><strong>Business job opportunities</strong><small>Browse Maui-area listings</small></span><span class="tile-arrow" aria-hidden="true">›</span></button>
       <button class="quick-card" type="button" data-page="events"><span class="tile-icon" aria-hidden="true">✦</span><span><strong>Events & announcements</strong><small>Campus news and activities</small></span><span class="tile-arrow" aria-hidden="true">›</span></button>
@@ -399,32 +455,68 @@ nav.addEventListener("click", (event) => {
   if (button) setPage(button.dataset.page);
 });
 
+document.querySelector("[data-action='back']").addEventListener("click", goBack);
 document.querySelector(".brand").addEventListener("click", () => setPage("home"));
 
 let idleTimer;
-function resetIdleTimer() {
+let idleWarningTimer;
+let idleCountdownTimer;
+function clearIdleTimers() {
   window.clearTimeout(idleTimer);
-  if (state.page !== "home" && state.page !== "welcome") {
-    idleTimer = window.setTimeout(() => {
-      state.room = null;
-      state.surveyChoice = null;
-      state.surveySubmitted = false;
-      setPage("home");
-      showToast("Welcome back. The kiosk is ready for the next visitor.");
-    }, 90000);
-  }
+  window.clearTimeout(idleWarningTimer);
+  window.clearInterval(idleCountdownTimer);
+}
+
+function hideIdleWarning() {
+  idleWarning.hidden = true;
+  idleWarning.setAttribute("aria-hidden", "true");
+}
+
+function showIdleWarning() {
+  if (splash.hidden === false) return;
+  idleWarning.hidden = false;
+  idleWarning.setAttribute("aria-hidden", "false");
+  idleCountdown.textContent = String(IDLE_WARNING_MS / 1000);
+  idleWarning.querySelector("[data-idle-stay]").focus({ preventScroll: true });
+
+  const deadline = Date.now() + IDLE_WARNING_MS;
+  idleCountdownTimer = window.setInterval(() => {
+    idleCountdown.textContent = String(Math.max(0, Math.ceil((deadline - Date.now()) / 1000)));
+  }, 250);
+  idleWarningTimer = window.setTimeout(showSplash, IDLE_WARNING_MS);
+}
+
+function resetIdleTimer() {
+  clearIdleTimers();
+  if (!splash.hidden) return;
+  hideIdleWarning();
+  idleTimer = window.setTimeout(showIdleWarning, IDLE_TIMEOUT_MS - IDLE_WARNING_MS);
 }
 
 ["pointerdown", "keydown", "touchstart"].forEach((eventName) => {
-  document.addEventListener(eventName, resetIdleTimer, { passive: true });
+  document.addEventListener(eventName, (event) => {
+    if (event.target instanceof Element && event.target.closest("#idle-warning")) return;
+    resetIdleTimer();
+  }, { passive: true });
 });
+idleWarning.addEventListener("click", (event) => {
+  if (event.target === idleWarning) resetIdleTimer();
+});
+idleWarning.querySelector("[data-idle-stay]").addEventListener("click", resetIdleTimer);
 
 function updateClock() {
-  document.querySelector("#clock").textContent = new Intl.DateTimeFormat("en-US", {
+  const currentTime = new Intl.DateTimeFormat("en-US", {
     weekday: "short", hour: "numeric", minute: "2-digit",
   }).format(new Date());
+  document.querySelector("#clock").textContent = currentTime;
+  document.querySelector("#splash-clock").textContent = currentTime;
 }
 
 updateClock();
 window.setInterval(updateClock, 30000);
+fitKioskStage();
+window.addEventListener("resize", fitKioskStage);
+window.visualViewport?.addEventListener("resize", fitKioskStage);
 render();
+
+document.querySelector("[data-splash-enter]").addEventListener("click", enterKiosk);

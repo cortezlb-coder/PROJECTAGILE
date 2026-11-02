@@ -5,45 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#00506d" />
     <title>Ka Lama | Campus Kiosk</title>
-    <link rel="stylesheet" href="styles.css?v=3" />
+    <script>document.documentElement.style.setProperty("--stage-scale", String(Math.min(window.innerWidth / 1080, window.innerHeight / 1980)));</script>
+    <link rel="stylesheet" href="styles.css?v=13" />
   </head>
-  <body>
-    <div class="app-shell">
-      <header class="topbar">
-        <button class="brand" type="button" data-action="home" aria-label="Ka Lama kiosk home">
-          <span class="brand-mark" aria-hidden="true">UH</span>
-          <span class="brand-copy">
-            <strong>UH Maui College</strong>
-            <span>Ka Lama Building</span>
-          </span>
-        </button>
-        <div class="topbar-right">
-          <span class="open-label"><span class="status-dot"></span> CAMPUS KIOSK</span>
-          <time id="clock" aria-label="Current time"></time>
+  <body class="splash-active">
+    <div class="kiosk-stage" id="kiosk-stage">
+      <div class="app-shell" aria-hidden="true">
+        <header class="topbar">
+          <button class="brand" type="button" data-action="home" aria-label="Ka Lama kiosk home">
+            <span class="brand-mark" aria-hidden="true">UH</span>
+            <span class="brand-copy">
+              <strong>UH Maui College</strong>
+              <span>Ka Lama Building</span>
+            </span>
+          </button>
+          <div class="topbar-right">
+            <span class="open-label"><span class="status-dot"></span> CAMPUS KIOSK</span>
+            <time id="clock" aria-label="Current time"></time>
+          </div>
+        </header>
+
+        <main id="app" class="main-content" aria-live="polite"></main>
+
+        <nav class="bottom-nav" aria-label="Kiosk sections">
+          <button type="button" class="nav-back" data-action="back" aria-label="Go back to the previous screen">
+            <span class="nav-icon" aria-hidden="true">←</span><span>Back</span>
+          </button>
+          <button type="button" data-page="home" aria-current="page">
+            <span class="nav-icon" aria-hidden="true">⌂</span><span>Home</span>
+          </button>
+          <button type="button" data-page="programs">
+            <span class="nav-icon" aria-hidden="true">✦</span><span>Programs</span>
+          </button>
+          <button type="button" data-page="find">
+            <span class="nav-icon" aria-hidden="true">⌖</span><span>Find</span>
+          </button>
+          <button type="button" data-page="jobs">
+            <span class="nav-icon" aria-hidden="true">↗</span><span>Jobs</span>
+          </button>
+          <button type="button" data-page="more">
+            <span class="nav-icon" aria-hidden="true">•••</span><span>More</span>
+          </button>
+        </nav>
+        <div id="toast" class="toast" role="status" aria-live="assertive"></div>
+      </div>
+      <section class="splash-screen" id="splash" role="dialog" aria-modal="true" aria-label="UH Maui College welcome">
+        <div class="splash-slides" aria-hidden="true">
+          <img class="splash-slide is-active" src="assets/campus-02.jpg" alt="" fetchpriority="high" />
         </div>
-      </header>
-
-      <main id="app" class="main-content" aria-live="polite"></main>
-
-      <nav class="bottom-nav" aria-label="Kiosk sections">
-        <button type="button" data-page="home" aria-current="page">
-          <span class="nav-icon" aria-hidden="true">⌂</span><span>Home</span>
-        </button>
-        <button type="button" data-page="programs">
-          <span class="nav-icon" aria-hidden="true">✦</span><span>Programs</span>
-        </button>
-        <button type="button" data-page="find">
-          <span class="nav-icon" aria-hidden="true">⌖</span><span>Find</span>
-        </button>
-        <button type="button" data-page="jobs">
-          <span class="nav-icon" aria-hidden="true">↗</span><span>Jobs</span>
-        </button>
-        <button type="button" data-page="more">
-          <span class="nav-icon" aria-hidden="true">•••</span><span>More</span>
-        </button>
-      </nav>
-      <div id="toast" class="toast" role="status" aria-live="assertive"></div>
+        <div class="splash-shade" aria-hidden="true"></div>
+        <time class="splash-clock" id="splash-clock" aria-label="Current time"></time>
+        <div class="splash-content">
+          <span class="splash-brand"><img class="splash-brand-mark" src="assets/uhmc-logo.png" alt="University of Hawaiʻi Maui College logo" /> UNIVERSITY OF HAWAIʻI · MAUI COLLEGE</span>
+          <p class="splash-kicker">E KOMO MAI · WELCOME</p>
+          <h1>Welcome to<br />Ka Lama Building</h1>
+          <p class="splash-intro">Find your way, explore the Business program, and discover what’s happening at UH Maui College.</p>
+          <button class="splash-enter" type="button" data-splash-enter>
+            Touch to enter <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <span class="splash-caption">UH MAUI COLLEGE · KAHULUI, MAUI</span>
+      </section>
+      <section class="idle-warning" id="idle-warning" role="dialog" aria-modal="true" aria-labelledby="idle-warning-title" aria-hidden="true" hidden>
+        <div class="idle-warning-card">
+          <span class="idle-warning-kicker">Campus kiosk</span>
+          <h2 id="idle-warning-title">Are you still there?</h2>
+          <p>For your privacy, this kiosk will return to the welcome screen in <strong id="idle-countdown">15</strong> seconds.</p>
+          <button class="idle-stay-button" type="button" data-idle-stay>Yes, keep browsing</button>
+        </div>
+      </section>
     </div>
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=13"></script>
   </body>
 </html>
