@@ -61,6 +61,20 @@ button { -webkit-tap-highlight-color: transparent; }
 .splash-screen.is-exiting { opacity: 0; visibility: hidden; pointer-events: none; }
 .splash-screen[hidden] { display: none; }
 .splash-slides, .splash-shade { position: absolute; z-index: -1; inset: 0; }
+.splash-shade { transition: opacity .9s ease; }
+.splash-screen.is-opening .splash-shade { opacity: 0; }
+.splash-screen.is-opening .splash-slide.is-active {
+  opacity: 0;
+  filter: blur(2px);
+  transform: scale(1.55);
+  transition: opacity .9s ease-in, transform .9s cubic-bezier(.2, .75, .3, 1), filter .9s ease;
+}
+.splash-screen.is-opening .splash-content,
+.splash-screen.is-opening .splash-clock,
+.splash-screen.is-opening .splash-caption {
+  opacity: 0;
+  transition: opacity .45s ease;
+}
 .splash-clock {
   position: absolute;
   top: 48px;

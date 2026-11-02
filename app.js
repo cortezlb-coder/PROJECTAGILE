@@ -106,25 +106,32 @@ function showSplash() {
   splash.hidden = false;
   splash.setAttribute("aria-hidden", "false");
   requestAnimationFrame(() => {
+    splash.classList.remove("is-opening");
     splash.classList.remove("is-exiting");
     document.querySelector("[data-splash-enter]").focus({ preventScroll: true });
   });
 }
 
 function enterKiosk() {
-  if (splash.hidden) return;
-  splash.classList.add("is-exiting");
+  if (splash.hidden || splash.classList.contains("is-opening")) return;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const openingDuration = reducedMotion ? 0 : 900;
+  const fadeDuration = reducedMotion ? 0 : 850;
+  splash.classList.add("is-opening");
   splash.setAttribute("aria-hidden", "true");
   document.querySelector(".app-shell").setAttribute("aria-hidden", "false");
   state.page = "home";
   render();
   window.setTimeout(() => {
-    splash.hidden = true;
-    document.body.classList.remove("splash-active");
-    app.querySelector(".welcome").setAttribute("tabindex", "-1");
-    app.querySelector(".welcome").focus({ preventScroll: true });
-    resetIdleTimer();
-  }, 850);
+    splash.classList.add("is-exiting");
+    window.setTimeout(() => {
+      splash.hidden = true;
+      document.body.classList.remove("splash-active");
+      app.querySelector(".welcome").setAttribute("tabindex", "-1");
+      app.querySelector(".welcome").focus({ preventScroll: true });
+      resetIdleTimer();
+    }, fadeDuration);
+  }, openingDuration);
 }
 
 function setPage(page) {
