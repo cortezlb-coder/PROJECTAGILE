@@ -8,6 +8,9 @@ const idleCountdown = document.querySelector("#idle-countdown");
 const pageHistory = [];
 const IDLE_TIMEOUT_MS = 120_000;
 const IDLE_WARNING_MS = 15_000;
+const INTERNET_TIME_URL = "https://timeapi.io/api/Time/current/zone?timeZone=UTC";
+const HAWAII_TIME_ZONE = "Pacific/Honolulu";
+let internetClockSync;
 
 const staff = [
   { id: "business-office", name: "Business Department Office", role: "Department information", room: "Ka Lama 202", floor: 2, hours: "Confirm with department" },
@@ -163,7 +166,7 @@ function goBack() {
 }
 
 function fitKioskStage() {
-  const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1980);
+  const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
   const scaleValue = String(scale);
   if (stage.style.getPropertyValue("--stage-scale") !== scaleValue) {
     stage.style.setProperty("--stage-scale", scaleValue);
@@ -533,15 +536,77 @@ idleWarning.addEventListener("click", (event) => {
 idleWarning.querySelector("[data-idle-stay]").addEventListener("click", resetIdleTimer);
 
 function updateClock() {
+  const now = internetClockSync
+    ? new Date(internetClockSync.timestamp + performance.now() - internetClockSync.syncedAt)
+    : new Date();
   const currentTime = new Intl.DateTimeFormat("en-US", {
-    weekday: "short", hour: "numeric", minute: "2-digit",
-  }).format(new Date());
-  document.querySelector("#clock").textContent = currentTime;
-  document.querySelector("#splash-clock").textContent = currentTime;
+    weekday: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: HAWAII_TIME_ZONE,
+    timeZoneName: "short",
+  }).format(now);
+  const syncStatus = internetClockSync
+    ? "Internet-synced Hawaii time"
+    : "Internet time unavailable; showing device time in Hawaii";
+
+  for (const clock of [document.querySelector("#clock"), document.querySelector("#splash-clock")]) {
+    clock.textContent = currentTime;
+    clock.title = syncStatus;
+  }
+}
+
+async function syncClockFromInternet() {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 10_000);
+
+  try {
+    const response = await fetch(INTERNET_TIME_URL, {
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Time service returned HTTP ${response.status}`);
+
+    const time = await response.json();
+    const fields = ["year", "month", "day", "hour", "minute", "seconds", "milliSeconds"];
+    if (time.timeZone !== "UTC" || fields.some((field) => !Number.isInteger(time[field]))) {
+      throw new Error("Time service returned an invalid UTC time");
+    }
+
+    const timestamp = Date.UTC(
+      time.year, time.month - 1, time.day, time.hour, time.minute, time.seconds, time.milliSeconds,
+    );
+    const parsedTime = new Date(timestamp);
+    if (
+      !Number.isFinite(timestamp)
+      || parsedTime.getUTCFullYear() !== time.year
+      || parsedTime.getUTCMonth() !== time.month - 1
+      || parsedTime.getUTCDate() !== time.day
+      || parsedTime.getUTCHours() !== time.hour
+      || parsedTime.getUTCMinutes() !== time.minute
+      || parsedTime.getUTCSeconds() !== time.seconds
+      || parsedTime.getUTCMilliseconds() !== time.milliSeconds
+    ) {
+      throw new Error("Time service returned an invalid UTC date");
+    }
+
+    internetClockSync = { timestamp, syncedAt: performance.now() };
+    updateClock();
+  } catch (error) {
+    console.warn("Could not sync the clock with internet time; using the last sync or device time.", error);
+    if (!internetClockSync) {
+      for (const clock of [document.querySelector("#clock"), document.querySelector("#splash-clock")]) {
+        clock.title = "Internet time unavailable; showing device time in Hawaii";
+      }
+    }
+  } finally {
+    window.clearTimeout(timeout);
+  }
 }
 
 updateClock();
 window.setInterval(updateClock, 30000);
+syncClockFromInternet();
 fitKioskStage();
 window.addEventListener("resize", scheduleKioskStageFit, { passive: true });
 window.visualViewport?.addEventListener("resize", scheduleKioskStageFit, { passive: true });
